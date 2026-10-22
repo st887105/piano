@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101114">
+<meta name="referrer" content="no-referrer">
+<title>我的鋼琴譜架</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#101114;--panel:#17191e;--card:#1e2027;--card2:#272a33;--line:#2e313b;
+  --text:#eef0f4;--muted:#a2a8b6;--faint:#6f7686;
+  --accent:#e9c46a;--accent-ink:#2b2106;--danger:#ff6b6b;--ok:#4cd39b;
+  --paper:#f7f5ef;--radius:14px;--shadow:0 12px 40px rgba(0,0,0,.5);--top:60px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select{font:inherit;color:inherit}
+.icon-btn{width:40px;height:40px;border-radius:10px;display:inline-grid;place-items:center;font-size:22px;flex:none}
+.icon-btn:hover,.icon-btn.on{background:var(--card2)}
+.icon-btn.on{color:var(--accent)}
+.icon-btn:disabled{opacity:.35;cursor:default}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:14px;text-decoration:none;color:var(--text)}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn .ti{font-size:18px}
+
+/* ===== 頂部列 ===== */
+.topbar{position:sticky;top:0;z-index:30;height:var(--top);display:flex;align-items:center;gap:10px;padding:0 16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));background:rgba(16,17,20,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:20px;flex:none}
+.brand b{display:block;font-size:16px;white-space:nowrap}
+.brand small{display:block;font-size:12px;color:var(--muted);white-space:nowrap}
+.search{flex:1;max-width:460px;margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 10px;height:40px}
+.search:focus-within{border-color:var(--accent)}
+.search .ti{color:var(--faint);font-size:18px}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:15px}
+.search input::-webkit-search-cancel-button{display:none}
+#btnSearch,#btnSearchClose{display:none}
+#btnUploadTop{display:inline-flex}
+
+/* ===== 分類標籤 ===== */
+.chips{position:sticky;top:var(--top);z-index:20;display:flex;gap:8px;overflow-x:auto;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;white-space:nowrap}
+.chip .ti{font-size:16px}
+.chip small{color:var(--faint);font-size:11px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.chip.on small{color:var(--accent-ink)}
+
+main{max-width:1440px;margin:0 auto;padding:16px 20px 40px}
+.toolbar{display:flex;align-items:center;gap:10px;margin:0 0 14px;min-height:36px}
+.stats{flex:1;min-width:0;color:var(--muted);font-size:13px}
+.stats b{color:var(--text);font-weight:600}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;flex:none}
+.seg button{padding:7px 10px;border-radius:7px;font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.seg button .ti{font-size:17px}
+.seg button.on{background:var(--card2);color:var(--text)}
+
+/* ===== 樂譜卡片 ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;outline:0;transition:transform .15s,border-color .15s;display:flex;flex-direction:column}
+@media(hover:hover){.card:hover{transform:translateY(-2px);border-color:var(--faint)}}
+.card:focus-visible{border-color:var(--accent)}
+.cover{position:relative;aspect-ratio:1/1.3;background:var(--paper);display:grid;place-items:center;overflow:hidden}
+.cover canvas,.cover img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.cover .ph{font-size:46px;color:#b9b2a0}
+.cover.audio{background:#1a2230}.cover.audio .ph{color:#8fb3ff}
+.bdgs{position:absolute;left:6px;bottom:6px;display:flex;gap:4px;flex-wrap:wrap}
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(20,20,24,.78);color:#fff}
+.bdg .ti{font-size:13px}
+.bdg.aud{color:#9ec5ff}.bdg.cat{color:var(--accent)}
+.resume{position:absolute;right:6px;top:6px;font-size:11px;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:600}
+.cmeta{padding:9px 38px 10px 10px}
+.ctitle{font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.csub{font-size:11px;color:var(--faint);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kebab{position:absolute;right:3px;bottom:5px;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:20px;color:var(--muted)}
+.kebab:hover{background:var(--card2);color:var(--text)}
+/* 清單檢視 */
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.row{display:flex;align-items:center;gap:12px;padding:10px 6px 10px 14px;border-bottom:1px solid var(--line);cursor:pointer;outline:0}
+.row:last-child{border-bottom:0}
+.row:hover,.row:focus-visible{background:var(--card)}
+.row .ricon{width:36px;height:36px;border-radius:9px;background:var(--card2);display:grid;place-items:center;font-size:20px;color:var(--accent);flex:none}
+.row .ricon.aud{color:#9ec5ff}
+.row .rmain{flex:1;min-width:0}
+.row .rmain b{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rmain small{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.row .kebab{position:static}
+
+/* ===== Skeleton ===== */
+.sk{display:block;border-radius:8px;background:linear-gradient(90deg,#1c1e25 25%,#2a2d37 37%,#1c1e25 63%);background-size:400% 100%;animation:sh 1.3s ease infinite}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+.sk-line{height:12px;margin:8px 10px 0;width:80%}
+.sk-line.short{width:45%;margin-bottom:12px}
+.sk-card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sk-cover{aspect-ratio:1/1.3;border-radius:0}
+.sk-chip{width:76px;height:34px;border-radius:999px;flex:none}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ti{font-size:52px;color:var(--faint)}
+.empty p{font-size:16px;color:var(--text)}
+.empty .btn{margin-top:14px}
+footer{text-align:center;color:var(--faint);font-size:12px;padding:0 16px 30px;padding-bottom:max(30px,env(safe-area-inset-bottom))}
+
+/* ===== Hamburger 抽屜 ===== */
+.drawer-ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-ov.open{opacity:1;pointer-events:auto}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:min(340px,88vw);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s ease;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.drawer-ov.open .drawer{transform:none}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 12px 18px;border-bottom:1px solid var(--line)}
+.dr-head b{font-size:16px}
+.dr-body{flex:1;overflow:auto}
+.dr-sec{padding:14px 18px;border-bottom:1px solid var(--line)}
+.dr-sec h4{margin:0 0 10px;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+.dr-sec p{margin:8px 0 0;font-size:12px;color:var(--faint);line-height:1.6}
+.dr-sec .seg{width:100%}.dr-sec .seg button{flex:1;justify-content:center}
+.dr-cat{width:100%;display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:10px;text-align:left;font-size:14px}
+.dr-cat:hover{background:var(--card)}
+.dr-cat.on{background:var(--card2);color:var(--accent)}
+.dr-cat .ti{font-size:18px;color:var(--muted)}
+.dr-cat.on .ti{color:var(--accent)}
+.dr-cat span{flex:1}.dr-cat small{color:var(--faint)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+
+/* ===== 樂譜閱讀器 Modal ===== */
+.modal{position:fixed;inset:0;z-index:50;background:#2b2c30;display:none;flex-direction:column}
+.modal.open{display:flex;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.rtop{display:flex;align-items:center;gap:4px;padding:6px 8px;padding-top:max(6px,env(safe-area-inset-top));background:#16171b;border-bottom:1px solid #000}
+.rtitle{flex:1;min-width:0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.zlabel{font-size:12px;color:var(--muted);min-width:44px;text-align:center;font-variant-numeric:tabular-nums;cursor:pointer;padding:6px 0}
+.vsep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.viewer{flex:1;min-height:0;overflow:auto;position:relative;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
+.pages{display:flex;gap:10px;justify-content:center;align-items:flex-start;padding:10px;min-height:100%;margin:0 auto;width:max-content;min-width:100%}
+.viewer.fitpage .pages{align-items:center}
+.pg{position:relative;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.45);flex:none}
+.pg canvas,.pg img{display:block;width:100%;height:100%}
+.pg .pg-ph{position:absolute;inset:0;display:grid;place-items:center}
+.pg-no{position:absolute;right:8px;bottom:6px;font-size:11px;color:rgba(0,0,0,.35)}
+.tapzone{position:absolute;top:0;bottom:0;width:30%;z-index:2}
+.tapzone.l{left:0}.tapzone.r{right:0}
+.viewer.zoomed .tapzone{display:none}
+.rbar{display:flex;align-items:center;gap:8px;padding:6px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:#16171b;border-top:1px solid #000}
+.rbar input[type=range]{flex:1;min-width:0;accent-color:var(--accent);height:28px}
+.pnum{font-size:13px;color:var(--muted);min-width:70px;text-align:center;font-variant-numeric:tabular-nums}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);text-align:center;padding:40px 20px;min-height:60vh}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+.spinner.sm{width:22px;height:22px;border-width:2px;border-color:#ddd;border-top-color:#999}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* 示範音檔列 */
+.abar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#1c1f27;border-top:1px solid #000}
+.abar audio{flex:1;min-width:0;height:36px}
+.abar select{max-width:40%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+
+/* ===== Bottom Sheet ===== */
+.sheet-ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-ov.open{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;margin:0 auto;max-width:620px;max-height:88dvh;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.dragging{transition:none}
+.sheet-ov.open .sheet{transform:none}
+.handle{padding:12px 0 8px;display:grid;place-items:center;cursor:grab;touch-action:none}
+.handle::before{content:"";width:42px;height:5px;border-radius:3px;background:var(--faint)}
+.sheet-body{overflow:auto;padding:2px 18px 20px;overscroll-behavior:contain}
+.sh-title{margin:2px 0 12px;font-size:17px;line-height:1.4}
+.sh-sub{margin:16px 0 8px;font-size:13px;color:var(--muted);font-weight:500}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font-size:14px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;word-break:break-word}
+.flist{list-style:none;margin:0;padding:0}
+.flist>li>button{width:100%;display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:10px;text-align:left;font-size:15px}
+.flist>li>button:hover{background:var(--card)}
+.flist>li>button .ti{font-size:20px;color:var(--muted)}
+.flist span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flist small{color:var(--faint)}
+.sh-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.sh-actions .btn{flex:1;min-width:110px}
+/* 上傳 */
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(233,196,106,.06)}
+.drop .ti{font-size:40px;color:var(--accent)}
+.drop p{margin:8px 0 2px;color:var(--text);font-size:15px}
+.drop small{font-size:12px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-size:13px;color:var(--muted)}
+.field input,.field select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;outline:0;color:var(--text)}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.uplist{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.uplist li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13px}
+.uplist .top{display:flex;align-items:center;gap:8px}
+.uplist .top span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uplist .top small{color:var(--faint);flex:none}
+.uplist .top .st{flex:none;font-size:12px}
+.uplist .st.ok{color:var(--ok)}.uplist .st.err{color:var(--danger)}
+.prog{height:4px;border-radius:2px;background:var(--line);margin-top:7px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+
+/* ===== Kebab（桌機浮動選單） ===== */
+.kmenu{position:fixed;z-index:90;min-width:200px;background:var(--card2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:none}
+.kmenu.open{display:block;animation:fade .12s ease}
+.kitem{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;text-align:left}
+.kitem:hover{background:rgba(255,255,255,.06)}
+.kitem .ti{font-size:18px;color:var(--muted)}
+
+/* ===== Toast ===== */
+.toasts{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom) + 12px));transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:max-content;max-width:92vw}
+.toast{display:flex;align-items:center;gap:8px;background:#f2f3f6;color:#15171c;padding:10px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);animation:tin .25s ease}
+.toast .ti{font-size:18px}
+.toast.ok .ti{color:#14945f}.toast.err .ti{color:#d63c3c}
+.toast.out{opacity:0;transform:translateY(8px);transition:.3s}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 列印用隱藏框 */
+#printFrame{position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden}
+
+/* ===== 響應式 ===== */
+@media(max-width:1100px){.grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}}
+@media(max-width:640px){
+  :root{--top:56px}
+  .topbar{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));gap:4px}
+  .brand small{display:none}.brand b{font-size:15px}
+  .brand .logo{width:30px;height:30px;font-size:18px}
+  .search{display:none}
+  #btnSearch{display:inline-grid;margin-left:auto}
+  #btnUploadTop{display:none}
+  .topbar.searching .brand,.topbar.searching #btnSearch,.topbar.searching #btnMenu{display:none}
+  .topbar.searching .search{display:flex;max-width:none;margin-left:0}
+  .topbar.searching #btnSearchClose{display:inline-grid}
+  .chips{padding:8px 12px}
+  main{padding:10px 12px 28px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .cmeta{padding:8px 36px 9px 9px}
+  .ctitle{font-size:13px}
+  .seg button span{display:none}
+  .rtop .icon-btn{width:36px;height:36px;font-size:20px}
+  .rtop .hide-m{display:none}
+  .zlabel{display:none}
+  .pnum{min-width:58px;font-size:12px}
+  .pages{padding:6px;gap:6px}
+}
+@media(min-width:641px) and (max-width:899px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media print{body>*:not(#printFrame){display:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="brand">
+    <div class="logo"><i class="ti ti-piano"></i></div>
+    <div style="min-width:0"><b id="siteTitle">我的鋼琴譜架</b><small id="folderName">讀取雲端樂譜中…</small></div>
+  </div>
+  <label class="search"><i class="ti ti-search"></i><input id="q" type="search" placeholder="搜尋曲名、歌手、分類" autocomplete="off" enterkeyhint="search"></label>
+  <button class="icon-btn" id="btnSearchClose" aria-label="關閉搜尋"><i class="ti ti-x"></i></button>
+  <button class="icon-btn" id="btnSearch" aria-label="搜尋"><i class="ti ti-search"></i></button>
+  <button class="btn" id="btnUploadTop"><i class="ti ti-upload"></i>上傳樂譜</button>
+  <button class="icon-btn" id="btnMenu" aria-label="開啟選單"><i class="ti ti-menu-2"></i></button>
+</header>
+
+<nav class="chips" id="chips" aria-label="分類"></nav>
+
+<main>
+  <div class="toolbar">
+    <div class="stats" id="stats"></div>
+    <div class="seg" id="viewSeg">
+      <button data-view="grid" title="圖卡"><i class="ti ti-layout-grid"></i><span>圖卡</span></button>
+      <button data-view="list" title="清單"><i class="ti ti-list"></i><span>清單</span></button>
+    </div>
+  </div>
+  <div id="list"></div>
+</main>
+<footer id="footer"></footer>
+
+<!-- Hamburger 抽屜選單 -->
+<div class="drawer-ov" id="drawerOv">
+  <aside class="drawer" role="dialog" aria-label="選單">
+    <div class="dr-head"><b>選單</b><button class="icon-btn" id="btnCloseDrawer" aria-label="關閉"><i class="ti ti-x"></i></button></div>
+    <div class="dr-body">
+      <div class="dr-sec">
+        <button class="btn primary" id="btnUploadDrawer" style="width:100%"><i class="ti ti-upload"></i>上傳樂譜</button>
+      </div>
+      <div class="dr-sec">
+        <h4>分類</h4>
+        <div id="drCats"></div>
+      </div>
+      <div class="dr-sec">
+        <h4>排序方式</h4>
+        <div class="seg" id="sortSeg">
+          <button data-sort="name">曲名</button>
+          <button data-sort="recent">最近開啟</button>
+          <button data-sort="new">最新上傳</button>
+        </div>
+      </div>
+      <div class="dr-sec">
+        <h4>伴奏設定</h4>
+        <label class="switch"><span>點左右兩側翻頁</span><input type="checkbox" id="optTap"></label>
+        <label class="switch"><span>平板橫放自動雙頁</span><input type="checkbox" id="optSpread"></label>
+        <label class="switch"><span>閱讀時螢幕不休眠</span><input type="checkbox" id="optWake"></label>
+        <p>翻頁踏板、藍牙翻頁器直接可用（方向鍵、PageUp／PageDown、空白鍵都會翻頁）。</p>
+      </div>
+      <div class="dr-sec" style="border-bottom:0">
+        <h4>雲端資料夾</h4>
+        <a class="btn" id="lnkCloud" href="#" target="_blank" rel="noopener" style="width:100%"><i class="ti ti-cloud"></i>到 pCloud 看原始資料夾</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Modal：樂譜閱讀器 -->
+<div class="modal" id="reader" role="dialog" aria-label="樂譜">
+  <div class="rtop">
+    <button class="icon-btn" id="btnRClose" aria-label="關閉"><i class="ti ti-arrow-left"></i></button>
+    <div class="rtitle" id="rTitle"></div>
+    <button class="icon-btn" id="btnZoomOut" aria-label="縮小" title="縮小"><i class="ti ti-zoom-out"></i></button>
+    <span class="zlabel" id="zoomLabel" title="恢復原尺寸">100%</span>
+    <button class="icon-btn" id="btnZoomIn" aria-label="放大" title="放大"><i class="ti ti-zoom-in"></i></button>
+    <button class="icon-btn" id="btnFit" aria-label="切換：整頁／符合寬度" title="整頁／符合寬度"><i class="ti ti-arrows-vertical"></i></button>
+    <button class="icon-btn hide-m" id="btnSpread" aria-label="單頁／雙頁" title="單頁／雙頁"><i class="ti ti-book"></i></button>
+    <span class="vsep hide-m"></span>
+    <button class="icon-btn hide-m" id="btnRDown" aria-label="下載" title="下載"><i class="ti ti-download"></i></button>
+    <button class="icon-btn hide-m" id="btnRPrint" aria-label="列印" title="列印"><i class="ti ti-printer"></i></button>
+    <button class="icon-btn" id="btnRMore" aria-label="更多"><i class="ti ti-dots-vertical"></i></button>
+  </div>
+  <div class="viewer fitpage" id="viewer">
+    <div class="pages" id="pages"></div>
+  </div>
+  <div class="abar" id="abar" hidden>
+    <i class="ti ti-music" style="color:#9ec5ff;font-size:20px"></i>
+    <select id="aSel" aria-label="示範音檔"></select>
+    <audio id="aud" controls preload="none" referrerpolicy="no-referrer"></audio>
+  </div>
+  <div class="rbar" id="rbar">
+    <button class="icon-btn" id="btnPrev" aria-label="上一頁"><i class="ti ti-chevron-left"></i></button>
+    <input type="range" id="pageRange" min="1" max="1" value="1" step="1" aria-label="跳頁">
+    <span class="pnum" id="pageNum">0 / 0</span>
+    <button class="icon-btn" id="btnNext" aria-label="下一頁"><i class="ti ti-chevron-right"></i></button>
+  </div>
+</div>
+
+<!-- Bottom Sheet -->
+<div class="sheet-ov" id="sheetOv">
+  <div class="sheet" id="sheet" role="dialog">
+    <div class="handle" id="sheetHandle" aria-label="拖曳關閉"></div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="kmenu" id="kmenu" role="menu"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<iframe id="printFrame" title="列印" aria-hidden="true"></iframe>
+
+<script>
+/* ===================== 設定區 ===================== */
+const CONFIG = {
+  siteTitle: '我的鋼琴譜架',
+  // 樂譜所在的 pCloud 公開資料夾
+  shareLink: 'https://e.pcloud.link/publink/show?code=kZ7L8X7ZGLsYlLfURUh3XCjqrIGJ6VAQJW4X',
+  // pCloud 上傳連結（只用來顯示，實際上傳透過下面的中轉站）
+  uploadLink: 'https://e.pcloud.com/#/puplink?code=Aj37ZFz0O0iJM6QubzF7NXEGLHyKD8sdV',
+  // Cloudflare 中轉站：讀 PDF、列印、上傳都靠它
+  proxy: 'https://pcloud-pdf.sunny-f0b.workers.dev',
+  // 依用途分類（順序就是標籤的順序）。資料夾或檔名開頭是 [分類名] 時，會直接歸到該分類
+  categories: [
+    { name: '校歌', icon: 'ti-school', kw: /校歌/ },
+    { name: '典禮', icon: 'ti-award', kw: /畢業|毕业|典禮|典礼|頒獎|颁奖|開學|开学|升旗|國歌|国歌|驪歌|骊歌|結業|结业/ },
+    { name: '節慶', icon: 'ti-confetti', kw: /聖誕|圣诞|christmas|新年|過年|过年|春節|母親節|母亲节|父親節|父亲节|教師節|教师节|生日|萬聖|万圣|中秋|端午/i },
+    { name: '律動遊戲', icon: 'ti-music', kw: /律動|律动|兒歌|儿歌|童謠|童谣|遊戲|游戏|唱遊|唱游/ },
+    { name: '流行歌曲', icon: 'ti-microphone-2', kw: /流行|五月天|周杰倫|周杰伦|周興哲|周兴哲|張學友|张学友|林宥嘉|陳奕迅|陈奕迅|告五人|蔡依林|田馥甄|Golden/i },
+    { name: '動漫電影', icon: 'ti-movie', kw: /迪士尼|disney|動漫|动漫|卡通|吉卜力|宮崎|宫崎|電影|电影|ost|媽媽的掃帚|能看見海的街道/i },
+    { name: '古典名曲', icon: 'ti-building-arch', kw: /古典|masterwork|classics|波尔卡|波爾卡|圓舞曲|圆舞曲|华尔兹|華爾茲|莫什科夫斯基|施特劳斯|史特勞斯|奏鳴曲|奏鸣曲|蕭邦|萧邦|貝多芬|贝多芬|巴哈|莫札特|莫扎特|op\.?\s*\d/i },
+    { name: '爵士藍調', icon: 'ti-brand-funimation', kw: /blues|布鲁斯|布魯斯|藍調|蓝调|爵士|jazz/i },
+    { name: '比賽教材', icon: 'ti-trophy', kw: /比赛|比賽|教材|練習|练习|全音|四手|联弹|聯彈|金奖|金獎/ },
+    { name: '其他', icon: 'ti-dots' }
+  ],
+  // 不顯示的檔案
+  exclude: /\.(lnk|ini|db|ds_store|txt|nfo|url|rtf)$/i,
+  version: 'v1.0.0',
+  updated: '2026-10-22'
+};
+
+/* ===================== 工具 ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const coll = new Intl.Collator('zh-Hant-TW', { numeric: true, sensitivity: 'base' });
+const RX = { pdf: /\.pdf$/i, img: /\.(jpe?g|png|webp|gif|bmp)$/i, aud: /\.(mp3|m4a|aac|ogg|oga|wav|flac)$/i, badAud: /\.(wma|ape|mid|midi)$/i };
+const mqMobile = matchMedia('(max-width:640px)');
+const S = { code: '', api: '', works: [], byId: new Map(), cat: '', q: '', view: 'grid', sort: 'name', loaded: false, links: new Map() };
+
+function store(k, v) {
+  try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; }
+}
+function storeJSON(k, v) {
+  if (v === undefined) { try { return JSON.parse(store(k) || 'null'); } catch (e) { return null; } }
+  store(k, JSON.stringify(v));
+}
+function fmtSize(b) {
+  if (!b) return '—';
+  const u = ['B','KB','MB','GB']; let i = 0;
+  while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+  return (i ? b.toFixed(b < 10 ? 1 : 0) : b) + ' ' + u[i];
+}
+function fmtDate(t) {
+  if (!t) return '—';
+  const d = new Date(t);
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+function syncLock() { document.body.classList.toggle('lock', !!document.querySelector('.modal.open,.drawer-ov.open,.sheet-ov.open')); }
+const catOf = n => CONFIG.categories.find(c => c.name === n) || CONFIG.categories[CONFIG.categories.length - 1];
+
+/* ===================== Toast ===================== */
+function toast(msg, type = '') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const ic = type === 'err' ? 'ti-alert-circle' : type === 'ok' ? 'ti-circle-check' : 'ti-info-circle';
+  t.innerHTML = `<i class="ti ${ic}"></i><span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, type === 'err' ? 4500 : 2600);
+}
+
+/* ===================== pCloud ===================== */
+function parseLink(link) {
+  const u = new URL(link.trim());
+  const code = u.searchParams.get('code');
+  if (!code) throw new Error('連結裡找不到 code 參數');
+  return { code, api: /^e\.|eapi/i.test(u.hostname) ? 'https://eapi.pcloud.com' : 'https://api.pcloud.com' };
+}
+async function pc(method, params = {}) {
+  const r = await fetch(`${S.api}/${method}?${new URLSearchParams({ code: S.code, ...params })}`, { referrerPolicy: 'no-referrer' });
+  const j = await r.json();
+  if (j.result !== 0) throw new Error(j.error || `pCloud 錯誤碼 ${j.result}`);
+  return j;
+}
+const thumb = (f, size = '400x520') => `${S.api}/getpubthumb?${new URLSearchParams({ code: S.code, fileid: f.fileid, size, crop: '0' })}`;
+async function fileLink(f, dl = false) {
+  const key = f.fileid + (dl ? 'd' : '');
+  const c = S.links.get(key);
+  if (c && Date.now() - c.t < 30 * 60 * 1000) return c.url;
+  const j = await pc('getpublinkdownload', dl ? { fileid: f.fileid, forcedownload: 1 } : { fileid: f.fileid });
+  const url = 'https://' + j.hosts[0] + j.path;
+  S.links.set(key, { url, t: Date.now() });
+  return url;
+}
+const proxyUrl = f => `${CONFIG.proxy.replace(/\/$/, '')}/?${new URLSearchParams({ code: S.code, fileid: f.fileid, api: S.api.includes('eapi') ? 'eu' : 'us', v: 4 })}`;
+
+/* ===================== 整理樂譜 ===================== */
+function cleanTitle(name) {
+  return name.replace(/\.[^.]+$/, '')
+    .replace(/^\[[^\]]+\]\s*/, '')
+    .replace(/^\d{3,}[_\s.-]+/, '')
+    .replace(/\s*(钢琴独奏|鋼琴獨奏|钢琴谱|鋼琴譜|正谱|正譜|高清|五线谱|五線譜|\d+\s*页|\d+\s*頁)\s*/g, ' ')
+    .replace(/\s+/g, ' ').trim() || name;
+}
+// 依用途判斷分類：資料夾名稱 = 分類名、檔名 [分類] 開頭、或關鍵字
+function classify(path, name) {
+  const tag = (name.match(/^\[([^\]]+)\]/) || [])[1];
+  const names = CONFIG.categories.map(c => c.name);
+  if (tag && names.includes(tag)) return tag;
+  for (const seg of path) if (names.includes(seg)) return seg;
+  const text = [...path, name].join(' / ');
+  for (const c of CONFIG.categories) if (c.kw && c.kw.test(text)) return c.name;
+  return '其他';
+}
+function buildWorks(meta) {
+  const works = [];
+  const sorter = (a, b) => coll.compare(a.name, b.name);
+  const audioByTop = new Map(); // 頂層資料夾 → 音檔
+  const pdfByTop = new Map();
+  const walk = (node, path) => {
+    const imgs = [];
+    for (const c of node.contents || []) {
+      if (c.isfolder) { walk(c, [...path, c.name]); continue; }
+      if (CONFIG.exclude.test(c.name)) continue;
+      const top = path[0] || '';
+      if (RX.pdf.test(c.name)) {
+        const w = {
+          id: 'w' + works.length, type: 'pdf', file: c, title: cleanTitle(c.name), raw: c.name,
+          folder: path.join(' / '), top, cat: classify(path, c.name), size: c.size || 0,
+          modified: Date.parse(c.modified) || 0, audio: []
+        };
+        works.push(w);
+        if (!pdfByTop.has(top)) pdfByTop.set(top, []);
+        pdfByTop.get(top).push(w);
+      } else if (RX.img.test(c.name)) imgs.push(c);
+      else if (RX.aud.test(c.name)) { if (!audioByTop.has(top)) audioByTop.set(top, []); audioByTop.get(top).push(c); }
+    }
+    // 只有圖片、沒有 PDF 的資料夾：整個資料夾當成一份樂譜
+    if (imgs.length && path.length) {
+      imgs.sort(sorter);
+      const name = path[path.length - 1];
+      works.push({
+        id: 'w' + works.length, type: 'img', files: imgs, file: imgs[0], title: cleanTitle(name), raw: name,
+        folder: path.slice(0, -1).join(' / '), top: path[0], cat: classify(path, name),
+        size: imgs.reduce((s, f) => s + (f.size || 0), 0),
+        modified: Math.max(...imgs.map(f => Date.parse(f.modified) || 0)), audio: []
+      });
+    }
+  };
+  walk(meta, []);
+  // 示範音檔：同一個頂層資料夾只有一份樂譜就附上；否則自成一張「音檔」卡
+  for (const [top, auds] of audioByTop) {
+    auds.sort(sorter);
+    const ps = pdfByTop.get(top) || [];
+    if (ps.length === 1) ps[0].audio = auds;
+    else works.push({
+      id: 'w' + works.length, type: 'audio', file: auds[0], audio: auds, title: cleanTitle(top || meta.name) + '（音檔）', raw: top,
+      folder: top, top, cat: classify([top], top), size: auds.reduce((s, f) => s + (f.size || 0), 0),
+      modified: Math.max(...auds.map(f => Date.parse(f.modified) || 0))
+    });
+  }
+  return works;
+}
+
+/* ===================== 最近開啟、續看頁數 ===================== */
+const recent = () => storeJSON('recent') || {};
+function markRecent(w, page) {
+  const r = recent(); r[w.file.fileid] = { t: Date.now(), p: page || 1 };
+  const keys = Object.keys(r).sort((a, b) => r[b].t - r[a].t).slice(0, 60);
+  storeJSON('recent', Object.fromEntries(keys.map(k => [k, r[k]])));
+}
+
+/* ===================== 列表畫面 ===================== */
+function filtered() {
+  const q = S.q.trim().toLowerCase();
+  const rc = recent();
+  let list = S.works.filter(w => {
+    if (S.cat === '最近') { if (!rc[w.file.fileid]) return false; }
+    else if (S.cat && w.cat !== S.cat) return false;
+    if (!q) return true;
+    return (w.title + ' ' + w.raw + ' ' + w.folder + ' ' + w.cat).toLowerCase().includes(q);
+  });
+  const sortBy = S.cat === '最近' ? 'recent' : S.sort;
+  if (sortBy === 'recent') list.sort((a, b) => (rc[b.file.fileid]?.t || 0) - (rc[a.file.fileid]?.t || 0) || coll.compare(a.title, b.title));
+  else if (sortBy === 'new') list.sort((a, b) => b.modified - a.modified);
+  else list.sort((a, b) => coll.compare(a.title, b.title));
+  return list;
+}
+function showSkeleton() {
+  $('#stats').innerHTML = '<span class="sk sk-line" style="width:150px;margin:0;display:inline-block"></span>';
+  $('#chips').innerHTML = '<span class="sk sk-chip"></span>'.repeat(7);
+  const card = '<div class="sk-card"><div class="sk sk-cover"></div><span class="sk sk-line"></span><span class="sk sk-line short"></span></div>';
+  $('#list').innerHTML = `<div class="grid">${card.repeat(12)}</div>`;
+}
+function renderChips() {
+  const count = n => S.works.filter(w => w.cat === n).length;
+  const rcN = S.works.filter(w => recent()[w.file.fileid]).length;
+  const cats = CONFIG.categories.filter(c => count(c.name));
+  const chip = (name, icon, n) => `<button class="chip ${S.cat === name ? 'on' : ''}" data-cat="${esc(name)}"><i class="ti ${icon}"></i>${esc(name || '全部')} <small>${n}</small></button>`;
+  $('#chips').innerHTML = chip('', 'ti-books', S.works.length) + (rcN ? chip('最近', 'ti-history', rcN) : '') + cats.map(c => chip(c.name, c.icon, count(c.name))).join('');
+  $('#drCats').innerHTML = [['', 'ti-books', S.works.length], ...(rcN ? [['最近', 'ti-history', rcN]] : []), ...cats.map(c => [c.name, c.icon, count(c.name)])]
+    .map(([n, ic, k]) => `<button class="dr-cat ${S.cat === n ? 'on' : ''}" data-cat="${esc(n)}"><i class="ti ${ic}"></i><span>${esc(n || '全部')}</span><small>${k}</small></button>`).join('');
+  $('#chips .chip.on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+function badges(w) {
+  return (w.type === 'pdf' ? '<span class="bdg"><i class="ti ti-file-type-pdf"></i>PDF</span>' : '') +
+    (w.type === 'img' ? `<span class="bdg"><i class="ti ti-photo"></i>${w.files.length} 頁</span>` : '') +
+    (w.audio.length ? `<span class="bdg aud"><i class="ti ti-music"></i>${w.audio.length}</span>` : '');
+}
+function cardHTML(w) {
+  const rc = recent()[w.file.fileid];
+  const cover = w.type === 'audio'
+    ? '<div class="cover audio"><i class="ti ti-music ph"></i>'
+    : w.type === 'img' ? `<div class="cover"><img loading="lazy" src="${thumb(w.file)}" alt="" onerror="this.remove()">`
+    : `<div class="cover" data-pdf="${w.id}"><i class="ti ti-music ph"></i>`;
+  return `<article class="card" data-id="${w.id}" tabindex="0">
+    ${cover}<div class="bdgs"><span class="bdg cat">${esc(w.cat)}</span>${badges(w)}</div>${rc && rc.p > 1 ? `<span class="resume">第 ${rc.p} 頁</span>` : ''}</div>
+    <div class="cmeta"><div class="ctitle" title="${esc(w.raw)}">${esc(w.title)}</div><div class="csub">${esc(w.folder || '未分資料夾')}</div></div>
+    <button class="kebab" data-id="${w.id}" aria-label="更多選項"><i class="ti ti-dots-vertical"></i></button>
+  </article>`;
+}
+function rowHTML(w) {
+  const rc = recent()[w.file.fileid];
+  const ic = w.type === 'audio' ? 'ti-music' : w.type === 'img' ? 'ti-photo' : 'ti-file-music';
+  return `<div class="row" data-id="${w.id}" tabindex="0">
+    <span class="ricon ${w.type === 'audio' ? 'aud' : ''}"><i class="ti ${ic}"></i></span>
+    <span class="rmain"><b>${esc(w.title)}</b><small>${esc(w.cat)} · ${esc(w.folder || '未分資料夾')}${w.audio.length && w.type !== 'audio' ? ' · 含示範音檔' : ''}${rc && rc.p > 1 ? ` · 上次看到第 ${rc.p} 頁` : ''}</small></span>
+    <button class="kebab" data-id="${w.id}" aria-label="更多選項"><i class="ti ti-dots-vertical"></i></button>
+  </div>`;
+}
+function render() {
+  renderChips();
+  document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === S.view));
+  document.querySelectorAll('#sortSeg button').forEach(b => b.classList.toggle('on', b.dataset.sort === S.sort));
+  const list = filtered();
+  $('#stats').innerHTML = (S.q ? `搜尋「${esc(S.q)}」：` : '') + `<b>${esc(S.cat || '全部')}</b> · ${list.length} 份`;
+  if (!list.length) {
+    $('#list').innerHTML = `<div class="empty"><i class="ti ti-music-off"></i><p>${S.q ? '找不到符合的曲子' : '這個分類還沒有樂譜'}</p><button class="btn primary" data-act="upload"><i class="ti ti-upload"></i>上傳樂譜</button></div>`;
+    return;
+  }
+  $('#list').innerHTML = S.view === 'list'
+    ? `<div class="list">${list.map(rowHTML).join('')}</div>`
+    : `<div class="grid">${list.map(cardHTML).join('')}</div>`;
+  observeCovers();
+}
+
+/* PDF 封面：只畫看得到的那幾張，畫好的暫存起來 */
+const coverCache = new Map();
+let coverIO = null, coverQ = [], coverBusy = 0;
+function observeCovers() {
+  if (!('IntersectionObserver' in window)) return;
+  coverIO?.disconnect();
+  coverIO = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    coverIO.unobserve(e.target);
+    const w = S.byId.get(e.target.dataset.pdf);
+    if (w) { coverQ.push([e.target, w]); pumpCovers(); }
+  }), { rootMargin: '200px' });
+  document.querySelectorAll('.cover[data-pdf]').forEach(el => {
+    const url = coverCache.get(el.dataset.pdf);
+    if (url) { el.innerHTML = `<img src="${url}" alt="">` + el.innerHTML.replace(/<i class="ti ti-music ph"><\/i>/, ''); return; }
+    coverIO.observe(el);
+  });
+}
+async function pumpCovers() {
+  while (coverBusy < 2 && coverQ.length) {
+    const [el, w] = coverQ.shift();
+    coverBusy++;
+    drawCover(el, w).finally(() => { coverBusy--; pumpCovers(); });
+  }
+}
+async function drawCover(el, w) {
+  try {
+    await ensurePdfJs();
+    const doc = await pdfjsLib.getDocument({ url: proxyUrl(w.file), disableAutoFetch: true, disableStream: true, rangeChunkSize: 1 << 17 }).promise;
+    const page = await doc.getPage(1);
+    const vp0 = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: 360 / vp0.width });
+    const cv = document.createElement('canvas');
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    const url = cv.toDataURL('image/jpeg', .72);
+    coverCache.set(w.id, url);
+    doc.destroy();
+    if (el.isConnected) { el.querySelector('.ph')?.remove(); el.insertAdjacentHTML('afterbegin', `<img src="${url}" alt="">`); }
+  } catch (e) { /* 封面畫不出來就保留圖示 */ }
+}
+
+/* ===================== 載入 ===================== */
+async function load() {
+  S.loaded = false;
+  showSkeleton();
+  try {
+    const p = parseLink(CONFIG.shareLink);
+    S.code = p.code; S.api = p.api;
+    const j = await pc('showpublink');
+    S.works = buildWorks(j.metadata);
+    S.byId = new Map(S.works.map(w => [w.id, w]));
+    $('#folderName').textContent = `${j.metadata.name || '鋼琴樂譜'} · ${S.works.length} 份`;
+    S.loaded = true;
+    render();
+    // 網址帶 ?w=fileid 時直接開那份樂譜
+    const want = new URLSearchParams(location.search).get('w');
+    const hit = want && S.works.find(w => String(w.file.fileid) === want);
+    if (hit) openWork(hit);
+  } catch (e) {
+    console.error(e);
+    $('#stats').textContent = ''; $('#chips').innerHTML = '';
+    $('#folderName').textContent = '讀取失敗';
+    $('#list').innerHTML = `<div class="empty"><i class="ti ti-cloud-off"></i><p>讀取雲端樂譜失敗</p><small>${esc(e.message)}</small><br><button class="btn primary" id="btnRetry"><i class="ti ti-refresh"></i>重試</button></div>`;
+    $('#btnRetry').onclick = load;
+    toast('讀取失敗：' + e.message, 'err');
+  }
+}
+
+/* ===================== Kebab 三點選單 ===================== */
+function actionsFor(w) {
+  const a = [];
+  if (w.type !== 'audio') a.push(['ti-book-2', '開啟樂譜', () => openWork(w)]);
+  if (w.audio.length) a.push(['ti-music', w.type === 'audio' ? `播放音檔（${w.audio.length}）` : `示範音檔（${w.audio.length}）`, () => w.type === 'audio' ? openAudio(w) : openWork(w, { audio: true })]);
+  if (w.type !== 'audio') a.push(['ti-printer', '列印', () => printWork(w)]);
+  a.push(['ti-download', '下載', () => downloadWork(w)]);
+  a.push(['ti-info-circle', '樂譜資訊', () => openInfo(w)]);
+  a.push(['ti-link', '複製這份樂譜的連結', () => copyText(`${location.origin}${location.pathname}?w=${w.file.fileid}`, '已複製連結')]);
+  return a;
+}
+let kOwner = null;
+function closeKebab() { $('#kmenu').classList.remove('open'); kOwner = null; }
+function showMenu(btn, items, title) {
+  if (mqMobile.matches || !btn) {
+    closeKebab();
+    openSheet(`<h3 class="sh-title">${esc(title)}</h3><ul class="flist">${items.map((it, i) =>
+      `<li><button data-act="k" data-i="${i}"><i class="ti ${it[0]}"></i><span>${it[1]}</span></button></li>`).join('')}</ul>`,
+      (act, i) => { if (act === 'k') { closeSheet(); items[i][2](); } });
+    return;
+  }
+  if (kOwner === btn) return closeKebab();
+  const m = $('#kmenu');
+  m.innerHTML = items.map((it, i) => `<button class="kitem" role="menuitem" data-i="${i}"><i class="ti ${it[0]}"></i>${it[1]}</button>`).join('');
+  m._items = items;
+  m.classList.add('open');
+  const r = btn.getBoundingClientRect();
+  let x = r.right - m.offsetWidth, y = r.bottom + 6;
+  if (x < 8) x = 8;
+  if (y + m.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - m.offsetHeight - 6);
+  m.style.left = x + 'px'; m.style.top = y + 'px';
+  kOwner = btn;
+}
+$('#kmenu').addEventListener('click', e => {
+  const b = e.target.closest('.kitem'); if (!b) return;
+  const fn = $('#kmenu')._items[+b.dataset.i][2];
+  closeKebab(); fn();
+});
+function copyText(t, okMsg) {
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast(okMsg, 'ok'), () => toast('無法複製，請手動複製', 'err'));
+  else toast('這個瀏覽器不支援複製', 'err');
+}
+
+/* ===================== 下載、列印 ===================== */
+async function downloadWork(w, file) {
+  try {
+    const targets = file ? [file] : w.type === 'img' ? w.files : w.type === 'audio' ? w.audio : [w.file];
+    if (targets.length > 1) toast(`開始下載 ${targets.length} 個檔案…`);
+    for (const f of targets) {
+      const a = document.createElement('a');
+      a.href = await fileLink(f, true); a.rel = 'noreferrer noopener'; a.referrerPolicy = 'no-referrer'; a.target = '_blank';
+      document.body.appendChild(a); a.click(); a.remove();
+      if (targets.length > 1) await new Promise(r => setTimeout(r, 600));
+    }
+    if (targets.length === 1) toast('開始下載…');
+  } catch (e) { toast('下載失敗：' + e.message, 'err'); }
+}
+let printUrl = '';
+async function printWork(w) {
+  toast('準備列印中…');
+  try {
+    const fr = $('#printFrame');
+    if (printUrl) { URL.revokeObjectURL(printUrl); printUrl = ''; }
+    if (w.type === 'pdf') {
+      const r = await fetch(proxyUrl(w.file));
+      if (!r.ok) throw new Error('讀取 PDF 失敗（' + r.status + '）');
+      printUrl = URL.createObjectURL(new Blob([await r.arrayBuffer()], { type: 'application/pdf' }));
+      // 手機的內嵌框通常不能列印，改開新分頁由系統列印
+      if (mqMobile.matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.open(printUrl, '_blank'); return; }
+      fr.onload = () => setTimeout(() => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { window.open(printUrl, '_blank'); } }, 300);
+      fr.src = printUrl;
+    } else if (w.type === 'img') {
+      const urls = await Promise.all(w.files.map(f => fileLink(f)));
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><title>${esc(w.title)}</title>
+        <style>@page{margin:8mm}body{margin:0}img{display:block;width:100%;height:auto;page-break-after:always}img:last-child{page-break-after:auto}</style></head>
+        <body>${urls.map(u => `<img src="${esc(u)}">`).join('')}</body></html>`;
+      printUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      fr.onload = () => {
+        const imgs = [...fr.contentDocument.images];
+        Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => { fr.contentWindow.focus(); fr.contentWindow.print(); });
+      };
+      fr.src = printUrl;
+    }
+  } catch (e) { console.error(e); toast('列印失敗：' + e.message, 'err'); }
+}
+
+/* ===================== Bottom Sheet ===================== */
+let sheetHandler = null;
+function openSheet(html, handler) {
+  $('#sheetBody').innerHTML = html;
+  $('#sheetBody').scrollTop = 0;
+  sheetHandler = handler;
+  $('#sheet').style.transform = '';
+  $('#sheetOv').classList.add('open');
+  syncLock();
+}
+function closeSheet() { $('#sheetOv').classList.remove('open'); sheetHandler = null; syncLock(); }
+$('#sheetOv').addEventListener('click', e => { if (e.target.id === 'sheetOv') closeSheet(); });
+$('#sheetBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (b && sheetHandler) sheetHandler(b.dataset.act, +(b.dataset.i || 0), b);
+});
+(() => {
+  const sh = $('#sheet'), hd = $('#sheetHandle'); let y0 = null, dy = 0;
+  hd.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; sh.classList.add('dragging'); hd.setPointerCapture(e.pointerId); });
+  hd.addEventListener('pointermove', e => { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); sh.style.transform = `translateY(${dy}px)`; });
+  const end = () => { if (y0 == null) return; y0 = null; sh.classList.remove('dragging'); sh.style.transform = ''; if (dy > 90) closeSheet(); };
+  hd.addEventListener('pointerup', end); hd.addEventListener('pointercancel', end);
+})();
+
+function openInfo(w) {
+  const rows = [
+    ['曲名', w.title], ['分類', w.cat], ['資料夾', w.folder || '（最上層）'], ['原始檔名', w.raw],
+    w.type === 'img' && ['頁數', w.files.length + ' 頁'], w.audio.length && ['音檔', w.audio.length + ' 個'],
+    ['大小', fmtSize(w.size)], ['更新日期', fmtDate(w.modified)]
+  ].filter(Boolean);
+  let html = `<h3 class="sh-title">${esc(w.title)}</h3><dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+  if (w.audio.length) html += `<h4 class="sh-sub">示範音檔</h4><ul class="flist">${w.audio.map((f, i) =>
+    `<li><button data-act="aud" data-i="${i}"><i class="ti ti-player-play"></i><span>${esc(f.name)}</span><small>${fmtSize(f.size)}</small></button></li>`).join('')}</ul>`;
+  html += `<div class="sh-actions">
+    ${w.type !== 'audio' ? '<button class="btn primary" data-act="open"><i class="ti ti-book-2"></i>開啟</button><button class="btn" data-act="print"><i class="ti ti-printer"></i>列印</button>' : ''}
+    <button class="btn" data-act="dl"><i class="ti ti-download"></i>下載</button></div>`;
+  openSheet(html, (act, i) => {
+    if (act === 'open') openWork(w);
+    else if (act === 'print') { closeSheet(); printWork(w); }
+    else if (act === 'dl') { closeSheet(); downloadWork(w); }
+    else if (act === 'aud') { w.type === 'audio' ? openAudio(w, i) : openWork(w, { audio: true, track: i }); }
+  });
+}
+
+/* 純音檔：底部面板播放清單 */
+function openAudio(w, i = 0) {
+  closeKebab();
+  openSheet(`<h3 class="sh-title">${esc(w.title)}</h3>
+    <audio id="sheetAud" controls autoplay preload="none" referrerpolicy="no-referrer" style="width:100%"></audio>
+    <h4 class="sh-sub">${w.audio.length} 個音檔</h4>
+    <ul class="flist" id="sheetTracks">${w.audio.map((f, k) => `<li><button data-act="t" data-i="${k}"><i class="ti ti-player-play"></i><span>${esc(f.name)}</span><small>${fmtSize(f.size)}</small></button></li>`).join('')}</ul>`,
+    (act, k) => { if (act === 't') play(k); });
+  const el = $('#sheetAud');
+  const play = async k => {
+    i = k;
+    document.querySelectorAll('#sheetTracks button').forEach((b, n) => b.style.color = n === k ? 'var(--accent)' : '');
+    try { el.src = await fileLink(w.audio[k]); el.play().catch(() => {}); } catch (e) { toast('取得音檔失敗：' + e.message, 'err'); }
+  };
+  el.onended = () => { if (i < w.audio.length - 1) play(i + 1); };
+  play(i);
+  markRecent(w, 1);
+}
+
+/* ===================== 樂譜閱讀器 ===================== */
+let pdfReady = null;
+function ensurePdfJs() {
+  if (window.pdfjsLib) return Promise.resolve();
+  return pdfReady ||= new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(); };
+    s.onerror = () => { pdfReady = null; rej(new Error('PDF 閱讀元件載入失敗')); };
+    document.head.appendChild(s);
+  });
+}
+const R = {
+  w: null, doc: null, count: 0, page: 1, ratio: 0.707, zoom: 1, fit: 'page', spread: false,
+  sizes: [], els: [], done: new Map(), token: 0, wake: null
+};
+const opt = {
+  get tap() { return store('optTap') !== '0'; },
+  get spread() { return store('optSpread') !== '0'; },
+  get wake() { return store('optWake') !== '0'; }
+};
+async function openWork(w, o = {}) {
+  closeKebab(); closeSheet();
+  if (w.type === 'audio') return openAudio(w);
+  R.w = w; R.token++; R.zoom = 1; R.fit = store('fitMode') || 'page'; R.done.clear();
+  if (R.doc) { R.doc.destroy(); R.doc = null; }
+  $('#rTitle').textContent = w.title;
+  $('#reader').classList.add('open'); syncLock();
+  document.activeElement?.blur(); // 讓翻頁踏板的按鍵不會被搜尋框吃掉
+  history.pushState({ reader: 1 }, '');
+  $('#pages').innerHTML = '<div class="loading"><div class="spinner"></div><p>載入樂譜中…</p></div>';
+  setupAudio(w, o);
+  requestWake();
+  const tk = R.token;
+  try {
+    if (w.type === 'pdf') {
+      await ensurePdfJs();
+      const doc = await pdfjsLib.getDocument({ url: proxyUrl(w.file), disableAutoFetch: true, rangeChunkSize: 1 << 18 }).promise;
+      if (tk !== R.token) { doc.destroy(); return; }
+      R.doc = doc; R.count = doc.numPages;
+      const vp = (await doc.getPage(1)).getViewport({ scale: 1 });
+      R.ratio = vp.width / vp.height;
+    } else {
+      R.count = w.files.length;
+      const f = w.files[0];
+      R.ratio = f.width && f.height ? f.width / f.height : 0.707;
+    }
+    const last = recent()[w.file.fileid]?.p || 1;
+    R.page = Math.min(Math.max(1, last), R.count);
+    $('#pageRange').max = R.count;
+    layout();
+    if (R.page > 1) toast(`從上次的第 ${R.page} 頁繼續`);
+  } catch (e) {
+    console.error(e);
+    if (tk !== R.token) return;
+    $('#pages').innerHTML = `<div class="loading"><i class="ti ti-alert-triangle" style="font-size:42px;color:var(--danger)"></i><p>樂譜載入失敗</p><small>${esc(e.message)}</small>
+      <button class="btn primary" id="btnOpenRaw"><i class="ti ti-external-link"></i>改用新分頁開啟</button></div>`;
+    $('#btnOpenRaw').onclick = () => fileLink(w.file).then(u => window.open(u, '_blank', 'noreferrer'));
+  }
+}
+function closeReader(fromPop) {
+  if (!$('#reader').classList.contains('open')) return;
+  R.token++;
+  if (R.w && R.count) markRecent(R.w, R.page);
+  if (R.doc) { R.doc.destroy(); R.doc = null; }
+  $('#aud').pause(); $('#aud').removeAttribute('src');
+  $('#pages').innerHTML = '';
+  $('#reader').classList.remove('open'); syncLock();
+  releaseWake();
+  if (!fromPop && history.state?.reader) history.back();
+  if (S.loaded) render();
+}
+addEventListener('popstate', () => { if ($('#reader').classList.contains('open')) closeReader(true); });
+
+/* 版面：決定單頁／雙頁與每頁大小 */
+function useSpread() {
+  const v = $('#viewer');
+  if (R.count < 2) return false;
+  if (R.spreadForce != null) return R.spreadForce;
+  return opt.spread && v.clientWidth > v.clientHeight && v.clientWidth >= 820;
+}
+function baseSize() {
+  const v = $('#viewer');
+  const pad = mqMobile.matches ? 12 : 20;
+  const aw = v.clientWidth - pad, ah = v.clientHeight - pad;
+  const n = R.spread ? 2 : 1, gap = R.spread ? 10 : 0;
+  let w;
+  if (R.fit === 'width') w = (aw - gap) / n;
+  else w = Math.min((aw - gap) / n, ah * R.ratio);
+  return { w: Math.floor(w), h: Math.floor(w / R.ratio) };
+}
+function layout() {
+  if (!R.count) return;
+  R.spread = useSpread();
+  if (R.spread && R.page % 2 === 0) R.page--;
+  const { w, h } = baseSize();
+  const z = R.zoom;
+  const pages = R.spread ? [R.page, R.page + 1].filter(p => p <= R.count) : [R.page];
+  const box = $('#pages');
+  box.innerHTML = '';
+  R.els = pages.map(p => {
+    const d = document.createElement('div');
+    d.className = 'pg';
+    d.style.width = Math.round(w * z) + 'px';
+    d.style.height = Math.round(h * z) + 'px';
+    d.innerHTML = `<div class="pg-ph"><div class="spinner sm"></div></div><span class="pg-no">${p}</span>`;
+    d.dataset.p = p;
+    box.appendChild(d);
+    return d;
+  });
+  $('#viewer').classList.toggle('fitpage', R.fit === 'page' && z === 1);
+  $('#viewer').classList.toggle('zoomed', z > 1 || R.fit === 'width');
+  if (!$('#viewer .tapzone')) $('#viewer').insertAdjacentHTML('beforeend', '<div class="tapzone l" data-dir="-1"></div><div class="tapzone r" data-dir="1"></div>');
+  document.querySelectorAll('#viewer .tapzone').forEach(t => t.hidden = !opt.tap);
+  updateBar();
+  pages.forEach((p, i) => drawPage(p, R.els[i], w * z, h * z));
+  prefetch();
+}
+function updateBar() {
+  const last = R.spread ? Math.min(R.page + 1, R.count) : R.page;
+  $('#pageNum').textContent = R.spread && last !== R.page ? `${R.page}-${last} / ${R.count}` : `${R.page} / ${R.count}`;
+  $('#pageRange').value = R.page;
+  $('#btnPrev').disabled = R.page <= 1;
+  $('#btnNext').disabled = last >= R.count;
+  $('#zoomLabel').textContent = Math.round(R.zoom * 100) + '%';
+  $('#btnFit').innerHTML = R.fit === 'width' ? '<i class="ti ti-arrows-horizontal"></i>' : '<i class="ti ti-arrows-vertical"></i>';
+  $('#btnSpread').classList.toggle('on', R.spread);
+  $('#btnSpread').hidden = R.count < 2;
+}
+async function renderTo(p, cssW) {
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  const key = p + '@' + Math.round(cssW * dpr);
+  if (R.done.has(key)) return R.done.get(key);
+  let el;
+  if (R.w.type === 'pdf') {
+    const page = await R.doc.getPage(p);
+    const vp0 = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: cssW * dpr / vp0.width });
+    el = document.createElement('canvas');
+    el.width = Math.floor(vp.width); el.height = Math.floor(vp.height);
+    const ctx = el.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, el.width, el.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  } else {
+    const f = R.w.files[p - 1];
+    el = new Image(); el.alt = ''; el.referrerPolicy = 'no-referrer';
+    el.src = cssW * dpr > 1000 ? await fileLink(f) : thumb(f, '1024x1024');
+    await el.decode().catch(() => {});
+  }
+  // 只留最近的幾張，避免手機記憶體不夠
+  R.done.set(key, el);
+  if (R.done.size > 12) R.done.delete(R.done.keys().next().value);
+  return el;
+}
+async function drawPage(p, d, cssW, cssH) {
+  const tk = R.token;
+  try {
+    const el = await renderTo(p, cssW);
+    if (tk !== R.token || !d.isConnected) return;
+    d.querySelector('.pg-ph')?.remove();
+    d.querySelector('canvas,img')?.remove();
+    d.prepend(el.cloneNode ? (el.tagName === 'CANVAS' ? cloneCanvas(el) : el.cloneNode()) : el);
+  } catch (e) { console.warn('page', p, e); }
+}
+function cloneCanvas(c) {
+  const n = document.createElement('canvas'); n.width = c.width; n.height = c.height;
+  n.getContext('2d').drawImage(c, 0, 0); return n;
+}
+function prefetch() {
+  // 先畫好下一頁（雙頁就下兩頁），翻頁才會瞬間出現
+  const step = R.spread ? 2 : 1;
+  const { w } = baseSize();
+  const tk = R.token;
+  setTimeout(() => {
+    if (tk !== R.token) return;
+    for (let p = R.page + step; p < R.page + step * 2 && p <= R.count; p++) renderTo(p, w * R.zoom).catch(() => {});
+    if (R.page - step >= 1) renderTo(R.page - step, w * R.zoom).catch(() => {});
+  }, 120);
+}
+function go(delta) {
+  if (!R.count) return;
+  const step = R.spread ? 2 : 1;
+  const np = Math.min(Math.max(1, R.page + delta * step), R.count);
+  if (np === R.page) { if (delta > 0) toast('已經是最後一頁'); return; }
+  R.page = np;
+  layout();
+  $('#viewer').scrollTo({ top: 0, left: $('#viewer').scrollLeft });
+  markRecent(R.w, R.page);
+}
+function goTo(p) { R.page = Math.min(Math.max(1, p), R.count); layout(); markRecent(R.w, R.page); }
+
+/* 放大縮小 */
+let zT;
+function setZoom(z, cx, cy) {
+  if (!R.count) return;
+  z = Math.round(Math.min(4, Math.max(0.5, z)) * 100) / 100;
+  if (z === R.zoom) return;
+  const v = $('#viewer'), r = v.getBoundingClientRect();
+  const px = (cx ?? r.left + r.width / 2) - r.left, py = (cy ?? r.top + r.height / 2) - r.top;
+  const ox = (v.scrollLeft + px) / R.zoom, oy = (v.scrollTop + py) / R.zoom;
+  R.zoom = z;
+  // 先用 CSS 立即縮放，停手後再重畫清晰版
+  const { w, h } = baseSize();
+  R.els.forEach(d => { d.style.width = Math.round(w * z) + 'px'; d.style.height = Math.round(h * z) + 'px'; });
+  v.classList.toggle('zoomed', z > 1 || R.fit === 'width');
+  v.classList.toggle('fitpage', R.fit === 'page' && z === 1);
+  v.scrollLeft = ox * z - px; v.scrollTop = oy * z - py;
+  $('#zoomLabel').textContent = Math.round(z * 100) + '%';
+  clearTimeout(zT);
+  zT = setTimeout(() => { const sl = v.scrollLeft, st = v.scrollTop; layout(); v.scrollLeft = sl; v.scrollTop = st; }, 280);
+}
+$('#btnZoomIn').onclick = () => setZoom(R.zoom * 1.25);
+$('#btnZoomOut').onclick = () => setZoom(R.zoom / 1.25);
+$('#zoomLabel').onclick = () => setZoom(1);
+$('#btnFit').onclick = () => { R.fit = R.fit === 'page' ? 'width' : 'page'; store('fitMode', R.fit); R.zoom = 1; layout(); toast(R.fit === 'width' ? '符合寬度（上下捲動）' : '整頁顯示'); };
+$('#btnSpread').onclick = () => { R.spreadForce = !R.spread; layout(); toast(R.spread ? '雙頁' : '單頁'); };
+$('#btnPrev').onclick = () => go(-1);
+$('#btnNext').onclick = () => go(1);
+$('#pageRange').addEventListener('change', e => goTo(+e.target.value));
+$('#pageRange').addEventListener('input', e => { $('#pageNum').textContent = `${e.target.value} / ${R.count}`; });
+$('#btnRClose').onclick = () => closeReader();
+$('#btnRDown').onclick = () => R.w && downloadWork(R.w);
+$('#btnRPrint').onclick = () => R.w && printWork(R.w);
+$('#btnRMore').onclick = e => {
+  if (!R.w) return;
+  const items = [
+    ['ti-printer', '列印', () => printWork(R.w)],
+    ['ti-download', '下載', () => downloadWork(R.w)],
+    ...(R.count > 1 ? [['ti-book', R.spread ? '改成單頁' : '改成雙頁', () => $('#btnSpread').click()]] : []),
+    ['ti-info-circle', '樂譜資訊', () => openInfo(R.w)],
+    ['ti-link', '複製這份樂譜的連結', () => copyText(`${location.origin}${location.pathname}?w=${R.w.file.fileid}`, '已複製連結')]
+  ];
+  showMenu(mqMobile.matches ? null : e.currentTarget, items, R.w.title);
+};
+$('#viewer').addEventListener('click', e => {
+  const t = e.target.closest('.tapzone'); if (t) go(+t.dataset.dir);
+});
+$('#viewer').addEventListener('dblclick', e => { if (e.target.closest('.tapzone')) return; setZoom(R.zoom > 1 ? 1 : 2, e.clientX, e.clientY); });
+$('#viewer').addEventListener('wheel', e => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault(); setZoom(R.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX, e.clientY);
+}, { passive: false });
+// 手機：雙指縮放、左右滑動翻頁
+(() => {
+  const v = $('#viewer');
+  let d0 = 0, z0 = 1, sx = 0, sy = 0, st = 0, multi = false;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  v.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) { multi = true; d0 = dist(e.touches); z0 = R.zoom; }
+    else if (e.touches.length === 1) { multi = false; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }
+  }, { passive: true });
+  v.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2 || !d0) return;
+    e.preventDefault();
+    const x = (e.touches[0].clientX + e.touches[1].clientX) / 2, y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    setZoom(z0 * dist(e.touches) / d0, x, y);
+  }, { passive: false });
+  v.addEventListener('touchend', e => {
+    if (e.touches.length < 2) d0 = 0;
+    if (multi || e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    const zoomedIn = R.zoom > 1 || R.fit === 'width';
+    if (!zoomedIn && Date.now() - st < 600 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+  });
+})();
+// 視窗大小改變（平板轉向）重新排版
+let rzT;
+addEventListener('resize', () => {
+  closeKebab();
+  clearTimeout(rzT);
+  rzT = setTimeout(() => { if ($('#reader').classList.contains('open') && R.count) { R.spreadForce = null; layout(); } }, 200);
+});
+
+/* 示範音檔 */
+function setupAudio(w, o) {
+  const has = w.audio.length > 0;
+  $('#abar').hidden = !(has && o.audio);
+  if (!has) return;
+  $('#aSel').innerHTML = w.audio.map((f, i) => `<option value="${i}">${esc(f.name.replace(/\.[^.]+$/, ''))}</option>`).join('');
+  const a = $('#aud');
+  const load = async i => { $('#aSel').value = i; try { a.src = await fileLink(w.audio[i]); if (o.audio) a.play().catch(() => {}); } catch (e) { toast('取得音檔失敗', 'err'); } };
+  $('#aSel').onchange = () => load(+$('#aSel').value);
+  a.onended = () => { const i = +$('#aSel').value; if (i < w.audio.length - 1) load(i + 1); };
+  if (o.audio) load(o.track || 0);
+}
+
+/* 螢幕不休眠 */
+async function requestWake() {
+  if (!opt.wake || !('wakeLock' in navigator)) return;
+  try { R.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+function releaseWake() { try { R.wake?.release(); } catch (e) {} R.wake = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && $('#reader').classList.contains('open')) requestWake(); });
+
+/* ===================== 上傳 ===================== */
+const UP = { files: [], busy: false };
+function openUpload() {
+  closeDrawer(); closeKebab();
+  const cats = CONFIG.categories.map(c => `<option value="${esc(c.name)}" ${S.cat === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+  openSheet(`<h3 class="sh-title">上傳樂譜</h3>
+    <label class="drop" id="drop">
+      <i class="ti ti-cloud-upload"></i>
+      <p>點這裡選檔案，或把檔案拖進來</p>
+      <small>PDF、圖片、MP3，一次可選多個，每個 100MB 以內</small>
+      <input type="file" id="upInput" multiple accept=".pdf,image/*,.mp3,.m4a,audio/*" hidden>
+    </label>
+    <div class="field"><span>分類（會加在檔名前面，網站就能自動歸類）</span><select id="upCat"><option value="">自動判斷</option>${cats}</select></div>
+    <div class="field"><span>你的名字（選填，pCloud 會記錄是誰上傳的）</span><input id="upName" placeholder="例如：王老師" autocomplete="name" value="${esc(store('upName') || '')}"></div>
+    <ul class="uplist" id="uplist"></ul>
+    <div class="sh-actions">
+      <button class="btn primary" data-act="go" id="btnUpGo" disabled><i class="ti ti-upload"></i>開始上傳</button>
+      <a class="btn" href="${esc(CONFIG.uploadLink)}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>改用 pCloud 上傳頁</a>
+    </div>`, act => { if (act === 'go') startUpload(); });
+  UP.files = [];
+  const inp = $('#upInput'), drop = $('#drop');
+  inp.onchange = () => addFiles(inp.files);
+  ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+}
+function addFiles(list) {
+  for (const f of list) {
+    if (!/\.(pdf|jpe?g|png|webp|gif|mp3|m4a|wav|ogg)$/i.test(f.name)) { toast(`「${f.name}」不是樂譜或音檔，已略過`, 'err'); continue; }
+    if (f.size > 100 * 1024 * 1024) { toast(`「${f.name}」超過 100MB，請改用 pCloud 上傳頁`, 'err'); continue; }
+    if (UP.files.some(x => x.f.name === f.name && x.f.size === f.size)) continue;
+    UP.files.push({ f, state: 'wait', pct: 0 });
+  }
+  drawUpList();
+}
+function drawUpList() {
+  $('#uplist').innerHTML = UP.files.map((x, i) => `<li>
+    <div class="top"><i class="ti ${RX.aud.test(x.f.name) ? 'ti-music' : RX.pdf.test(x.f.name) ? 'ti-file-type-pdf' : 'ti-photo'}"></i><span>${esc(x.f.name)}</span><small>${fmtSize(x.f.size)}</small>
+    <span class="st ${x.state === 'ok' ? 'ok' : x.state === 'err' ? 'err' : ''}">${x.state === 'ok' ? '完成' : x.state === 'err' ? '失敗' : x.state === 'up' ? x.pct + '%' : '等待中'}</span></div>
+    <div class="prog"><i style="width:${x.state === 'ok' ? 100 : x.pct}%"></i></div></li>`).join('');
+  const b = $('#btnUpGo');
+  if (b) b.disabled = UP.busy || !UP.files.some(x => x.state === 'wait' || x.state === 'err');
+}
+function uploadOne(x, cat, who) {
+  return new Promise(resolve => {
+    const name = cat && !x.f.name.startsWith('[') ? `[${cat}] ${x.f.name}` : x.f.name;
+    const fd = new FormData();
+    fd.append('file', x.f, name);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${CONFIG.proxy.replace(/\/$/, '')}/upload?${new URLSearchParams({ names: who || '譜架網站' })}`);
+    xhr.upload.onprogress = e => { if (e.lengthComputable) { x.pct = Math.round(e.loaded / e.total * 100); drawUpList(); } };
+    xhr.onload = () => {
+      let ok = false;
+      try { ok = xhr.status === 200 && JSON.parse(xhr.responseText).result === 0; } catch (e) {}
+      x.state = ok ? 'ok' : 'err';
+      if (!ok) console.warn('upload', xhr.status, xhr.responseText);
+      drawUpList(); resolve(ok);
+    };
+    xhr.onerror = () => { x.state = 'err'; drawUpList(); resolve(false); };
+    x.state = 'up'; x.pct = 0; drawUpList();
+    xhr.send(fd);
+  });
+}
+async function startUpload() {
+  if (UP.busy) return;
+  const cat = $('#upCat').value, who = $('#upName').value.trim();
+  if (who) store('upName', who);
+  UP.busy = true; drawUpList();
+  let ok = 0, bad = 0;
+  for (const x of UP.files) {
+    if (x.state === 'ok') continue;
+    (await uploadOne(x, cat, who)) ? ok++ : bad++;
+  }
+  UP.busy = false; drawUpList();
+  if (ok) toast(`已上傳 ${ok} 個檔案${bad ? `，${bad} 個失敗` : ''}`, bad ? '' : 'ok');
+  else if (bad) toast('上傳失敗，可改用 pCloud 上傳頁', 'err');
+  if (ok) setTimeout(load, 1500);
+}
+
+/* ===================== 主畫面事件 ===================== */
+$('#list').addEventListener('click', e => {
+  if (e.target.closest('[data-act="upload"]')) return openUpload();
+  const kb = e.target.closest('.kebab');
+  if (kb) { e.stopPropagation(); const w = S.byId.get(kb.dataset.id); showMenu(kb, actionsFor(w), w.title); return; }
+  const c = e.target.closest('.card,.row');
+  if (c) openWork(S.byId.get(c.dataset.id));
+});
+$('#list').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('.card,.row')) openWork(S.byId.get(e.target.dataset.id));
+});
+const pickCat = n => { S.cat = n; store('cat', n); render(); scrollTo({ top: 0 }); };
+$('#chips').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) pickCat(b.dataset.cat); });
+$('#drCats').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) { pickCat(b.dataset.cat); closeDrawer(); } });
+$('#viewSeg').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (!b) return; S.view = b.dataset.view; store('view', S.view); render(); });
+$('#sortSeg').addEventListener('click', e => { const b = e.target.closest('[data-sort]'); if (!b) return; S.sort = b.dataset.sort; store('sort', S.sort); render(); });
+document.addEventListener('click', e => { if (!e.target.closest('#kmenu') && !e.target.closest('.kebab') && !e.target.closest('#btnRMore')) closeKebab(); });
+addEventListener('scroll', closeKebab, { passive: true });
+
+/* 搜尋 */
+let qT;
+$('#q').addEventListener('input', e => { clearTimeout(qT); qT = setTimeout(() => { S.q = e.target.value; if (S.loaded) render(); }, 120); });
+$('#btnSearch').onclick = () => { $('#topbar').classList.add('searching'); $('#q').focus(); };
+function closeSearch() { $('#topbar').classList.remove('searching'); if ($('#q').value) { $('#q').value = ''; S.q = ''; if (S.loaded) render(); } }
+$('#btnSearchClose').onclick = closeSearch;
+
+/* 漢堡選單 */
+function openDrawer() { $('#drawerOv').classList.add('open'); syncLock(); }
+function closeDrawer() { $('#drawerOv').classList.remove('open'); syncLock(); }
+$('#btnMenu').onclick = openDrawer;
+$('#btnCloseDrawer').onclick = closeDrawer;
+$('#drawerOv').addEventListener('click', e => { if (e.target.id === 'drawerOv') closeDrawer(); });
+$('#btnUploadTop').onclick = openUpload;
+$('#btnUploadDrawer').onclick = openUpload;
+[['#optTap', 'optTap'], ['#optSpread', 'optSpread'], ['#optWake', 'optWake']].forEach(([sel, k]) => {
+  const el = $(sel);
+  el.checked = store(k) !== '0';
+  el.onchange = () => { store(k, el.checked ? '1' : '0'); if ($('#reader').classList.contains('open')) { R.spreadForce = null; layout(); } };
+});
+
+/* 鍵盤、翻頁踏板 */
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,select,textarea')) return;
+  if (e.key === 'Escape') {
+    if ($('#kmenu').classList.contains('open')) return closeKebab();
+    if ($('#sheetOv').classList.contains('open')) return closeSheet();
+    if ($('#reader').classList.contains('open')) return closeReader();
+    if ($('#drawerOv').classList.contains('open')) return closeDrawer();
+    if ($('#topbar').classList.contains('searching')) return closeSearch();
+  }
+  if (!$('#reader').classList.contains('open') || $('#sheetOv').classList.contains('open')) {
+    if (e.key === '/' && !$('#reader').classList.contains('open')) { e.preventDefault(); mqMobile.matches ? $('#btnSearch').click() : $('#q').focus(); }
+    return;
+  }
+  const v = $('#viewer');
+  const scrollable = v.scrollHeight > v.clientHeight + 4;
+  const atBottom = v.scrollTop + v.clientHeight >= v.scrollHeight - 4, atTop = v.scrollTop <= 4;
+  const next = ['ArrowRight', 'PageDown', ' ', 'Enter'], prev = ['ArrowLeft', 'PageUp', 'Backspace'];
+  if (next.includes(e.key)) { e.preventDefault(); if (scrollable && !atBottom && e.key !== 'ArrowRight') v.scrollBy({ top: v.clientHeight * 0.85, behavior: 'smooth' }); else go(1); }
+  else if (prev.includes(e.key)) { e.preventDefault(); if (scrollable && !atTop && e.key !== 'ArrowLeft') v.scrollBy({ top: -v.clientHeight * 0.85, behavior: 'smooth' }); else go(-1); }
+  else if (e.key === 'ArrowDown' && !scrollable) { e.preventDefault(); go(1); }
+  else if (e.key === 'ArrowUp' && !scrollable) { e.preventDefault(); go(-1); }
+  else if (e.key === '+' || e.key === '=') setZoom(R.zoom * 1.25);
+  else if (e.key === '-' || e.key === '_') setZoom(R.zoom / 1.25);
+  else if (e.key === '0') setZoom(1);
+  else if (e.key === 'Home') goTo(1);
+  else if (e.key === 'End') goTo(R.count);
+});
+
+/* ===================== 啟動 ===================== */
+(function init() {
+  document.title = CONFIG.siteTitle;
+  $('#siteTitle').textContent = CONFIG.siteTitle;
+  $('#footer').textContent = `${CONFIG.siteTitle} ${CONFIG.version} · 更新 ${CONFIG.updated}`;
+  $('#lnkCloud').href = CONFIG.shareLink;
+  S.view = store('view') || 'grid';
+  S.sort = store('sort') || 'name';
+  S.cat = store('cat') || '';
+  load();
+})();
+</script>
+</body>
+</html>
